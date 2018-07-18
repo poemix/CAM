@@ -140,9 +140,9 @@ if __name__ == '__main__':
         cam = cv2.resize(cams[i], (w, h))
         cam = cam - np.min(cam)
         cam = cam / np.max(cam)
-        print(cam)
 
         heatmap = cv2.applyColorMap(np.uint8(255 * cam), cv2.COLORMAP_JET)
+
         print(heatmap.shape)
         heatmap = heatmap.astype(np.float32)
         heatmap /= 255

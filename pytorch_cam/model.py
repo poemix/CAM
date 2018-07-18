@@ -12,7 +12,7 @@ from torch.nn import init
 from torchvision import models
 
 
-def weight_init_kamming(module):
+def weight_init_kaming(module):
     class_name = module.__class__.__name__
     if class_name.find('Conv') != -1:
         init.kaiming_normal_(module.weight.data, a=0, mode='fan_in')
@@ -44,7 +44,7 @@ class ClassBlock(nn.Module):
             add_block += [nn.Dropout(p=0.5)]
 
         add_block = nn.Sequential(*add_block)
-        add_block.apply(weight_init_kamming)
+        add_block.apply(weight_init_kaming)
 
         classifier = []
         classifier += [nn.Linear(num_bottleneck, class_num)]
