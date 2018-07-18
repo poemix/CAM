@@ -41,20 +41,20 @@ class GradCAM:
 
     def forward(self, x):
         # model结构[ft_model(resnet50), classifier]
-        x = self.model.ft_model.conv1(x)
-        x = self.model.ft_model.bn1(x)
-        x = self.model.ft_model.relu(x)
-        x = self.model.ft_model.maxpool(x)
-        x = self.model.ft_model.layer1(x)
-        x = self.model.ft_model.layer2(x)
-        x = self.model.ft_model.layer3(x)
-        x = self.model.ft_model.layer4(x)
+        x = self.model.model.conv1(x)
+        x = self.model.model.bn1(x)
+        x = self.model.model.relu(x)
+        x = self.model.model.maxpool(x)
+        x = self.model.model.layer1(x)
+        x = self.model.model.layer2(x)
+        x = self.model.model.layer3(x)
+        x = self.model.model.layer4(x)
 
         features = x  # 要提取的feature map [?, 2048, 7, 7]
         # 后向传播时，求在特征图上的梯度，并用变量来存储它方便后期获取
         features.register_hook(self.save_gradient)
 
-        x = self.model.ft_model.avgpool(x)
+        x = self.model.model.avgpool(x)
         # reshape
         x = x.view(-1, x.size(1))  # [?, 2048]
         outputs = self.model.classifier(x)
@@ -82,7 +82,7 @@ class GradCAM:
             one_hot = torch.sum(one_hot * outputs)
 
         # 梯度清零
-        self.model.ft_model.zero_grad()
+        self.model.model.zero_grad()
         self.model.classifier.zero_grad()
 
         # 提取的特征图
@@ -108,24 +108,42 @@ class GradCAM:
 
 if __name__ == '__main__':
     import cv2
+    from torchvision import transforms
     from pytorch_cam.model import FTNet
 
+    cuda = False
+    device = torch.device('cuda' if cuda and torch.cuda.is_available() else 'cpu')
     h, w = 244, 244
-    grad_cam = GradCAM(model=FTNet(100))
+    # load img method1
+    # img = cv2.imread('../examples/both.png')[..., ::-1]
+    # img = cv2.resize(img, (w, h)).astype(np.float32)
+    # transformer = transforms.Compose([
+    #     transforms.ToTensor(),
+    #     transforms.Normalize(
+    #         mean=[0.485, 0.456, 0.406],
+    #         std=[0.229, 0.224, 0.225],
+    #     )
+    # ])
+    # x = transformer(img).unsqueeze(0).to(device)
+
+    # load img method2
     img = cv2.imread('../examples/both.png', 1)
     img = cv2.resize(img, (w, h))
     img = img.astype(np.float32)
     img /= 255
     x = preprocess_image(img)
     # grad_cam 可以同时处理多张图片
+    grad_cam = GradCAM(model=FTNet(100), use_cuda=cuda)
     cams = grad_cam(x)
 
     for i in range(cams.shape[0]):
         cam = cv2.resize(cams[i], (w, h))
         cam = cam - np.min(cam)
         cam = cam / np.max(cam)
+        print(cam)
 
         heatmap = cv2.applyColorMap(np.uint8(255 * cam), cv2.COLORMAP_JET)
+        print(heatmap.shape)
         heatmap = heatmap.astype(np.float32)
         heatmap /= 255
         cam = heatmap + img

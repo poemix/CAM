@@ -68,18 +68,18 @@ class FTNet(nn.Module):
         ft_model.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         # 删除预训练模型resnet的fc module
         del ft_model._modules['fc']
-        self.ft_model = ft_model
+        self.model = ft_model
         self.classifier = ClassBlock(2048, class_num)
 
     def forward(self, x):
-        x = self.ft_model.conv1(x)
-        x = self.ft_model.bn1(x)
-        x = self.ft_model.relu(x)
-        x = self.ft_model.maxpool(x)
-        x = self.ft_model.layer1(x)
-        x = self.ft_model.layer2(x)
-        x = self.ft_model.layer3(x)
-        x = self.ft_model.layer4(x)
+        x = self.model.conv1(x)
+        x = self.model.bn1(x)
+        x = self.model.relu(x)
+        x = self.model.maxpool(x)
+        x = self.model.layer1(x)
+        x = self.model.layer2(x)
+        x = self.model.layer3(x)
+        x = self.model.layer4(x)
 
         x = self.ft_model.avgpool(x)
         # reshape
