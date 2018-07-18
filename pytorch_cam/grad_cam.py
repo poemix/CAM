@@ -7,6 +7,7 @@
 # @Software : PyCharm
 
 
+import os
 import cv2
 import glob
 import torch
@@ -137,6 +138,9 @@ class GradCAM:
 if __name__ == '__main__':
     use_cuda = False
     height, width = 244, 244
+    cam_path = '../cams'
+    if not os.path.exists(cam_path):
+        os.makedirs(cam_path)
 
     transformer = transforms.Compose([
         transforms.Resize((height, width), interpolation=3),
@@ -170,4 +174,4 @@ if __name__ == '__main__':
             split = x_name[i].replace('\\', '/').split('/')
             pre = '/'.join(split[:-1])
             sufix = 'cam-{}'.format(split[-1])
-            cv2.imwrite('{}'.format(sufix), np.uint8(255 * cam))
+            cv2.imwrite('{}/{}'.format(cam_path, sufix), np.uint8(255 * cam))
