@@ -81,7 +81,7 @@ class FTNet(nn.Module):
         x = self.model.layer3(x)
         x = self.model.layer4(x)
 
-        x = self.ft_model.avgpool(x)
+        x = self.model.avgpool(x)
         # reshape
         x = x.view(-1, x.size(1))  # [?, 2048]
         x = self.classifier(x)
