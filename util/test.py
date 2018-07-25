@@ -33,7 +33,7 @@ print(uni_infos_sum)
 
 # 找出字典中值最大对应的key
 key = max(uni_infos_sum, key=lambda x: uni_infos_sum[x])
-print(uni_infos_sum[key])
+print(key, uni_infos_sum[key])
 
 # 给字典value排序 reverse=True为降序
 uni_infos_sum = sorted(uni_infos_sum.items(), key=lambda x: x[1], reverse=True)
